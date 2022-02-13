@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h5 class="my-3 border-bottom pb-2">질문 등록</h5>
+    <form method="post" class="post-form my-3">
+        {% csrf_token %}
+        <!-- 오류표시 START -->
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for field in form %}
+                    {% if field.errors %}
+                    <strong>{{ field.label }}</strong>
+                    {{ field.errors }}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+        <!-- 오류표시 END-->
+        <div class="form-group">
+            <label for="subjecy">제목</label>
+            <input type="text" class="form-control" name="subject" id="subject" value="{{ form.subject.value|default_if_none:'' }}">
+            <!-- form.subject.value에 값이 없을 경우 기존에 입력했던 값을 유지하기 위함 |은 템플릿 필터-->
+        </div>
+        <div class="form-group">
+            <label for="content">내용</label>
+            <textarea name="content" id="content" rows="10" class="form-control">{{ form.content.value|default_if_none:'' }}</textarea>
+        </div>
+        <!--템플릿 재활용을 위해 action 생략-->
+        <!--action 생략 시 현재 페이지의 URL이 디폴트 action으로 설정-->
+        <button type="submit" class="btn btn-primary">저장하기</button>
+    </form>
+</div>
+{% endblock %}

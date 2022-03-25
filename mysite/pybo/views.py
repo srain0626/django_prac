@@ -4,6 +4,7 @@ from django.utils import timezone
 from .models import Question
 from .forms import QuestionForm, AnswerForm
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -31,12 +32,14 @@ def detail(request, question_id):
     return render(request, 'pybo/question_detail.html', context)
 
 # pybo 답변 등록
+@login_required(login_url = 'common:login')
 def answer_create(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     if request.method == 'POST':
         form = AnswerForm(request.POST)
         if form.is_valid():
             answer = form.save(commit=False)
+            answer.author = request.user        # author 속성에 로그인 계정 저장
             answer.create_date = timezone.now()
             answer.question = question
             answer.save()
@@ -47,11 +50,13 @@ def answer_create(request, question_id):
     return redirect('pybo:detail', question_id=question_id)     # 상세화면을 다시 보여주기 위해 redirect 함수 사용
 
 # pybo 질문 등록
+@login_required(login_url= 'common:login')
 def question_create(request):
     if request.method == 'POST':
         form = QuestionForm(request.POST)   # request.POST 에는 화면에서 사용자가 입력한 내용들이 담겨있다.
         if form.is_valid():
             question = form.save(commit=False)  # 임시저장
+            question.author = request.user      # author 속성에 로그인 계정 저장
             question.create_date = timezone.now()
             question.save()
             return redirect('pybo:index')
